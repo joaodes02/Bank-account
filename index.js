@@ -4,6 +4,7 @@ const chalk = require("chalk");
 
 // modulos internos
 const fs = require("fs");
+const { get } = require("http");
 
 // console.log("Setup inicial");
 
@@ -33,6 +34,7 @@ function operation() {
       } else if (action === "Depositar") {
         deposit();
       } else if (action === "Consultar Saldo") {
+        getAccountBalance();
       } else if (action === "Sacar") {
       } else if (action === "Sair") {
         console.log(chalk.bgBlue.black("Obrigado por usar Bank-Account!"));
@@ -164,4 +166,32 @@ function getAccount(accountName) {
     flag: "r",
   });
   return JSON.parse(accountJSON);
+}
+
+// Mostrar Saldo:
+
+function getAccountBalance() {
+  inquirer
+    .prompt([
+      {
+        name: "accountName",
+        message: "Qual o nome da sua conta?",
+      },
+    ])
+    .then((answer) => {
+      const accountName = answer["accountName"];
+
+      if (!checkAccount(accountName)) {
+        return getAccountBalance();
+      }
+
+      const accountData = getAccount(accountName);
+      console.log(
+        chalk.bgBlue.black(
+          `Olá, o saldo da sua conta é R$${accountData.balance}`
+        )
+      );
+      operation();
+    })
+    .catch((err) => console.log(err));
 }
